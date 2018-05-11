@@ -1,5 +1,7 @@
 package gluk.learning.rus.contactviewer;
 
+import android.net.Uri;
+
 import java.util.UUID;
 
 public class Contact {
@@ -13,6 +15,8 @@ public class Contact {
         mName = "Rus";
         mNumber = "89991893661";
         mMail = "thgall@mail.ru";
+        Uri uri = Uri.parse("content://contacts");
+        String s = "sdddd";
     }
 
     public UUID getId() {

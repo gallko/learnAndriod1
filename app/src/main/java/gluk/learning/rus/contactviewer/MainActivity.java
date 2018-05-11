@@ -1,5 +1,7 @@
 package gluk.learning.rus.contactviewer;
 
+import android.database.Cursor;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
