@@ -1,6 +1,8 @@
 package gluk.learning.rus.contactviewer;
 
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -16,10 +18,12 @@ public class ContactFragment extends Fragment {
     private TextView mContactName;
     private TextView mContactNumber;
     private TextView mContactMail;
+    int mIDContact;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mIDContact = (int) getActivity().getIntent().getSerializableExtra(MainActivity.EXTRA_CONTACT_ID);
     }
 
     @Override
@@ -37,42 +41,37 @@ public class ContactFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ContentResolver contentResolver = getActivity().getApplicationContext().
                 getApplicationContext().getContentResolver();
-
-        Cursor mCursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+        Cursor cursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                 null, null, null, null);
-
-        if (mCursor.isBeforeFirst()) { // mCursor maybe null?
-            int x = 1; //savedInstanceState.getInt(MainActivity.KEY_INDEX);
-            if (!mCursor.move(x)) {
-                mCursor.close();
-                return inflater.inflate(R.layout.fragment_not_found_contact, container, false);
-            }
+        if (!cursor.moveToPosition(mIDContact)) { // mCursor maybe null?
+            return inflater.inflate(R.layout.fragment_not_found_contact, container, false);
         }
-
         View v = inflater.inflate(R.layout.fragment_fullcontact, container, false);
         mContactName = v.findViewById(R.id.viewContactName);
         mContactNumber = v.findViewById(R.id.viewContactNumber);
         mContactMail = v.findViewById(R.id.viewContactMail);
 
         mContactName.setText(
-                mCursor.getString(mCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
         );
         mContactNumber.setText(
-                mCursor.getString(mCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
         );
 
-        String id = mCursor.getString(mCursor.getColumnIndex(ContactsContract.Contacts._ID));
+        String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
         Cursor cur1 = contentResolver.query(
                 ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
                 ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
                 new String[]{id}, null);
 
-        if (cur1 != null) if (cur1.moveToNext()) {
+        if (cur1.moveToFirst()) {
             mContactMail.setText(
                     cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA)));
-            cur1.close();
+        } else {
+            mContactMail.setText("Emprty " + cur1.getCount());
         }
-        mCursor.close();
+        cur1.close();
+        cursor.close();
         return v;
     }
 }

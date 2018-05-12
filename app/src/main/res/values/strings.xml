@@ -4,4 +4,5 @@
     <string name="contact_title_number">Number</string>
     <string name="contact_title_mail">Mail</string>
     <string name="contact_not_found">Contact not found</string>
+    <string name="empty">Empty</string>
 </resources>

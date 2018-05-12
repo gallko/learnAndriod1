@@ -1,5 +1,6 @@
 package gluk.learning.rus.contactviewer;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ContactListFragment extends Fragment {
     private RecyclerView mContactRecyclerView;
@@ -38,21 +40,28 @@ public class ContactListFragment extends Fragment {
         mContactRecyclerView.setAdapter(mAdapter);
     }
 
-    private class ContactHolder extends RecyclerView.ViewHolder {
+    private class ContactHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView mNameTextView;
         private TextView mNumberTextView;
-        private Cursor mCursor;
+        private int mIDContact;
 
         public ContactHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_contact, parent, false));
-            mNameTextView = (TextView) itemView.findViewById(R.id.contact_name);
-            mNumberTextView = (TextView) itemView.findViewById(R.id.contact_number);
+            mNameTextView = itemView.findViewById(R.id.contact_name);
+            mNumberTextView = itemView.findViewById(R.id.contact_number);
+            itemView.setOnClickListener(this);
         }
 
         public void bind(Cursor cursor) {
-            mCursor = cursor;
-            mNameTextView.setText(mCursor.getString(mCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)));
-            mNumberTextView.setText(mCursor.getString(mCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+            mIDContact = cursor.getPosition();
+            mNameTextView.setText(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)));
+            mNumberTextView.setText(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = MainActivity.newIntent(getActivity(), mIDContact);
+            startActivity(intent);
         }
     }
 
