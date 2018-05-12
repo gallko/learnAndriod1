@@ -2,9 +2,9 @@ package gluk.learning.rus.contactviewer;
 
 import android.support.v4.app.Fragment;
 
-public class MainActivity extends SingleFragmentActivity {
+public class ContactListActivity extends SingleFragmentActivity {
     @Override
     protected Fragment createFragment() {
-        return new ContactFragment();
+        return new ContactListFragment();
     }
 }

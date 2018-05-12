@@ -13,20 +13,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 public class ContactFragment extends Fragment {
-    private Contact mContact;
     private TextView mContactName;
     private TextView mContactNumber;
     private TextView mContactMail;
-    private Cursor mCursor;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mContact = new Contact();
-        ContentResolver contentResolver = getActivity().getApplicationContext().
-                getApplicationContext().getContentResolver();
-        mCursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                null, null, null, null);
     }
 
     @Override
@@ -37,22 +30,29 @@ public class ContactFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mCursor.close();
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        ContentResolver contentResolver = getActivity().getApplicationContext().
+                getApplicationContext().getContentResolver();
+
+        Cursor mCursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                null, null, null, null);
+
+        if (mCursor.isBeforeFirst()) { // mCursor maybe null?
+            int x = 1; //savedInstanceState.getInt(MainActivity.KEY_INDEX);
+            if (!mCursor.move(x)) {
+                mCursor.close();
+                return inflater.inflate(R.layout.fragment_not_found_contact, container, false);
+            }
+        }
+
         View v = inflater.inflate(R.layout.fragment_fullcontact, container, false);
         mContactName = v.findViewById(R.id.viewContactName);
         mContactNumber = v.findViewById(R.id.viewContactNumber);
         mContactMail = v.findViewById(R.id.viewContactMail);
-
-        if (mCursor.isBeforeFirst()) {
-            if (!mCursor.moveToNext()) {
-                return inflater.inflate(R.layout.fragment_not_found_contact, container, false);
-            }
-        }
 
         mContactName.setText(
                 mCursor.getString(mCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
@@ -61,8 +61,6 @@ public class ContactFragment extends Fragment {
                 mCursor.getString(mCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
         );
 
-        ContentResolver contentResolver = getActivity().getApplicationContext().
-                getApplicationContext().getContentResolver();
         String id = mCursor.getString(mCursor.getColumnIndex(ContactsContract.Contacts._ID));
         Cursor cur1 = contentResolver.query(
                 ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
@@ -74,15 +72,7 @@ public class ContactFragment extends Fragment {
                     cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA)));
             cur1.close();
         }
-
+        mCursor.close();
         return v;
-    }
-
-    public Cursor getCursor() {
-        return mCursor;
-    }
-
-    public void setCursor(Cursor cursor) {
-        mCursor = cursor;
     }
 }
