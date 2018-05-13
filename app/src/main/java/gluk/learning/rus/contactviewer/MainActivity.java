@@ -5,12 +5,13 @@ import android.content.Intent;
 import android.support.v4.app.Fragment;
 
 public class MainActivity extends SingleFragmentActivity {
-    public static final String EXTRA_CONTACT_ID =
+    private static final String EXTRA_CONTACT_ID =
             "gluk.learning.rus.contactviewer.contact_id";
 
     @Override
     protected Fragment createFragment() {
-        return new ContactFragment();
+        int contactId = (int) getIntent().getSerializableExtra(EXTRA_CONTACT_ID);
+        return ContactFragment.newInstance(contactId);
     }
 
     public static Intent newIntent(Context packageContext, int contactID) {

@@ -1,8 +1,6 @@
 package gluk.learning.rus.contactviewer;
 
 import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -15,15 +13,26 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 public class ContactFragment extends Fragment {
+    private static final String ARG_CONTACT_ID = "contact_id";
+
     private TextView mContactName;
     private TextView mContactNumber;
     private TextView mContactMail;
     int mIDContact;
 
+    public static ContactFragment newInstance(int contactId) {
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_CONTACT_ID, contactId);
+        ContactFragment fragment = new ContactFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mIDContact = (int) getActivity().getIntent().getSerializableExtra(MainActivity.EXTRA_CONTACT_ID);
+        mIDContact = (int) getArguments().getSerializable(ARG_CONTACT_ID);
+//        mIDContact = (int) getActivity().getIntent().getSerializableExtra(MainActivity.EXTRA_CONTACT_ID);
     }
 
     @Override

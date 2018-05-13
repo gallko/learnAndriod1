@@ -1,5 +1,6 @@
 package gluk.learning.rus.contactviewer;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -13,23 +14,43 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import javax.security.auth.callback.Callback;
 
 public class ContactListFragment extends Fragment {
     private RecyclerView mContactRecyclerView;
     private ContactAdapter mAdapter;
+    private Callbacks mCallback;
+
+    public interface Callbacks {
+        void onContactSelected(int ID);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallback = (Callbacks) context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback = null;
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
+        ContactSingleton contactSingleton = ContactSingleton.get(getActivity());
+        Cursor cursor = contactSingleton.getCursor();
+        if (cursor.getCount() == 0) {
+            return inflater.inflate(R.layout.fragment_not_found_contact, container, false);
+        }
         View view = inflater.inflate(R.layout.fragment_contact_list, container,
                 false);
         mContactRecyclerView = view.findViewById(R.id.contact_recycler_view);
         mContactRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
         updateUI();
-
         return view;
     }
 
@@ -60,8 +81,9 @@ public class ContactListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Intent intent = MainActivity.newIntent(getActivity(), mIDContact);
-            startActivity(intent);
+//            Intent intent = MainActivity.newIntent(getActivity(), mIDContact);
+//            startActivity(intent);
+            mCallback.onContactSelected(mIDContact);
         }
     }
 
